@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  
+  <title>chat bot </title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <style>
+    .chat-message {
+      margin-bottom: 10px;
+    }
+    .user {
+      font-weight: bold;
+      margin-right: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1> chat bot</h1>
+    <div id="messages"></div>
+    <div class="form-group">
+      <input type="text" id="message" class="form-control" placeholder="Type your message...">
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.1/socket.io.min.js" integrity="sha384-VJIc0sPolBR45gnO/L9bIQssk14D1qUYPrlcwMXx2h4CYwK0SHSNcLps9EDzWs5I" crossorigin="anonymous"></script>
+  <script>
+    var socket = io.connect("http://" + document.domain + ":" + location.port);
+
+    function sendMessage() {
+      var message = document.getElementById("message").value;
+      if (message.trim() === "") {
+        return; // Do nothing if the message is empty or contains only whitespace
+      }
+      var messageElement = '<div class="chat-message"><span class="user">You:</span>' + message + '</div>';
+      document.getElementById("messages").innerHTML += messageElement;
+
+      socket.emit("message", message);
+      document.getElementById("message").value = "";
+    }
+
+    // Add event listener to input field to listen for "keydown" event
+    document.getElementById("message").addEventListener("keydown", function(event) {
+      if (event.key === "Enter") {
+        sendMessage();
+      }
+    });
+
+    socket.on("response", function(data) {
+      var responseElement = '<div class="chat-message"><span class="user">Bot:</span>' + data.message + '</div>';
+      document.getElementById("messages").innerHTML += responseElement;
+    });
+  </script>
+</body>
+</html>
